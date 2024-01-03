@@ -26,10 +26,20 @@ void Flow::addStep(Step* step) {
 void Flow::start() {
     this->timesStarted++;
     for (int i = 0; i < this->steps.size(); i++) {
-        std::cout << "Do you want to skip this step? (y/n)" << std::endl;
+        // Check if it's the last step (EndStep)
+        bool isLastStep = (i == this->steps.size() - 1);
+
+        if (isLastStep) {
+            std::cout << "This is the EndStep" << std::endl;
+            return;
+        } else {
+            std::cout << "Do you want to skip this step? (y/n)" << std::endl;
+        }
+
         std::string skip;
         std::cin >> skip;
-        if (skip == "y") {
+
+        if (skip == "y" && !isLastStep) {
             this->skipStep(i);
         } else {
             // check if step is a calculus step
@@ -84,6 +94,7 @@ void Flow::start() {
     }
     this->timesFinished++;
 }
+
 
 
 void Flow::checkData() {

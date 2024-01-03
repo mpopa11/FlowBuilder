@@ -141,3 +141,86 @@ void FlowManager::printSteps() {
     std::cout << "Select which step to add: " << std::endl;
 }
 
+void FlowManager::printFlows() {
+    std::cout << "Available flows: " << std::endl;
+    for (int i = 0; i < this->flows.size(); i++) {
+        std::cout << this->flows[i]->getName() << std::endl;
+    }
+}
+
+void FlowManager::runFlow() {
+    std::string flowName;
+    std::cout << "Enter flow name: ";
+    std::cin >> flowName;
+    this->runFlow(flowName);
+}
+
+void FlowManager::checkData() {
+    std::string flowName;
+    std::cout << "Enter flow name: ";
+    std::cin >> flowName;
+    this->checkData(flowName);
+}
+
+void FlowManager::deleteFlow() {
+    std::string flowName;
+    std::cout << "Enter flow name: ";
+    std::cin >> flowName;
+    this->deleteFlow(flowName);
+}
+
+void FlowManager::getTimestamp() {
+    std::string flowName;
+    std::cout << "Enter flow name: ";
+    std::cin >> flowName;
+    this->getTimestamp(flowName);
+}
+
+void FlowManager::flowMenu() {
+    int option = -1;
+    while (option != 0) {
+        std::cout << "Flow Menu" << std::endl;
+        std::cout << "1. Add flow" << std::endl;
+        std::cout << "2. Run flow" << std::endl;
+        std::cout << "3. Check data" << std::endl;
+        std::cout << "4. Delete flow" << std::endl;
+        std::cout << "5. Get timestamp" << std::endl;
+        std::cout << "6. Print flows" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        std::cout << "Select an option: ";
+        std::cin >> option;
+        switch(option) {
+            case 1: {
+                this->addFlow();
+                break;
+            }
+            case 2: {
+                this->runFlow();
+                break;
+            }
+            case 3: {
+                this->checkData();
+                break;
+            }
+            case 4: {
+                this->deleteFlow();
+                break;
+            }
+            case 5: {
+                this->getTimestamp();
+                break;
+            }
+            case 6: {
+                this->printFlows();
+                break;
+            }
+            case 0: {
+                break;
+            }
+            default: {
+                std::cout << "Invalid option" << std::endl;
+                break;
+            }
+        }
+    }
+}

@@ -1,8 +1,12 @@
 #ifndef FLOW_H
 #define FLOW_H
 
-#include <vector>
 #include "step.h"
+#include <vector>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 class Flow {
     private:
@@ -15,6 +19,8 @@ class Flow {
         std::vector<int> skippedScreenCount;
         std::vector<int> errorScreenCount;
         float averageErrors;
+        void skipStep(int stepIndex);
+        void printSteps();
     public:
         Flow(std::string name);
         void addStep(Step* step);

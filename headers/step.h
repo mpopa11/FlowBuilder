@@ -2,37 +2,51 @@
 #define STEP_H
 
 #include <string>
+#include <iostream>
+#include <fstream>
 
 class Step {
-public:
-    virtual void setup() = 0;
-    virtual void run() = 0;
+    public:
+        virtual void setup() = 0;
+        virtual void run() = 0;
 };
 
 class TitleStep : public Step {
-private:
-    std::string title;
-    std::string subtitle;
+    private:
+        std::string title;
+        std::string subtitle;
 
-public:
-    void setup() override;
-    void run() override;
-    TitleStep();
-    std::string getTitle();
-    std::string getSubtitle();
+    public:
+        void setup() override;
+        void run() override;
+        TitleStep();
+        std::string getTitle();
+        std::string getSubtitle();
 };
 
 class TextStep : public Step {
-private:
-    std::string title;
-    std::string copy;
+    private:
+        std::string title;
+        std::string copy;
 
-public:
-    void setup() override;
-    void run() override;
-    TextStep();
-    std::string getTitle();
-    std::string getCopy();
+    public:
+        void setup() override;
+        void run() override;
+        TextStep();
+        std::string getTitle();
+        std::string getCopy();
+};
+
+class TextInputStep : public Step {
+    private:
+        std::string description;
+        std::string textInput;
+    public:
+        void setup() override;
+        void run() override;
+        TextInputStep();
+        std::string getDescription();
+        std::string getTextInput();
 };
 
 class NumberStep : public Step {
@@ -57,6 +71,7 @@ private:
 public:
     void setup() override;
     void run() override;
+    void run (Step* step1, Step* step2);
     CalculusStep();
     int getStep1();
     int getStep2();
@@ -70,6 +85,7 @@ private:
 public:
     void setup() override;
     void run() override;
+    void run(Step* step);
     DisplayStep();
     int getStep();
 };
@@ -78,26 +94,27 @@ class TextFileStep : public Step {
 private:
     std::string description;
     std::string filename;
-
+    
 public:
     void setup() override;
     void run() override;
     TextFileStep();
     std::string getDescription();
     std::string getFilename();
+    std::string readFileContent();
 };
 
 class CsvFileStep : public Step {
 private:
     std::string description;
     std::string filename;
-
 public:
     void setup() override;
     void run() override;
     CsvFileStep();
     std::string getDescription();
     std::string getFilename();
+    std::string readFileContent();
 };
 
 class OutputStep : public Step {
@@ -110,6 +127,7 @@ private:
 public:
     void setup() override;
     void run() override;
+    void run(Step* step);
     OutputStep();
     int getStep();
     std::string getFileName();

@@ -1,10 +1,9 @@
 #include "step.h"
-#include <iostream>
+
 
 TitleStep::TitleStep() {
 
 }
-
 
 void TitleStep::setup() {
     std::cout << "Enter title: ";
@@ -52,6 +51,29 @@ std::string TextStep::getCopy() {
     return this->copy;
 }
 
+TextInputStep::TextInputStep() {
+
+}
+
+void TextInputStep::setup() {
+    std::cout << "Enter description: ";
+    std::cin >> description;
+}
+
+void TextInputStep::run() {
+    std::cout << "Description: " << this->description << std::endl;
+    std::cout << "Enter text: ";
+    std::cin >> textInput;
+}
+
+std::string TextInputStep::getDescription() {
+    return this->description;
+}
+
+std::string TextInputStep::getTextInput() {
+    return this->textInput;
+}
+
 NumberStep::NumberStep() {
 
 }
@@ -90,9 +112,26 @@ void CalculusStep::setup() {
 }
 
 void CalculusStep::run() {
-    //Step* step1, Step* step2
-    //implementation in flow class
-    //need access to previous steps
+    //empty override to virtual function
+}
+
+void CalculusStep::run(Step* step1, Step* step2) {
+    int firstNumber = dynamic_cast<NumberStep*>(step1)->getNumber();
+    int secondNumber = dynamic_cast<NumberStep*>(step2)->getNumber();
+
+    if (this->operation == "+") {
+        std::cout << firstNumber + secondNumber << std::endl;
+    } else if (this->operation == "-") {
+        std::cout << firstNumber - secondNumber << std::endl;
+    } else if (this->operation == "*") {
+        std::cout << firstNumber * secondNumber << std::endl;
+    } else if (this->operation == "/") {
+        std::cout << firstNumber / secondNumber << std::endl;
+    } else if (this->operation == "min") {
+        std::cout << std::min(firstNumber, secondNumber) << std::endl;
+    } else if (this->operation == "max") {
+        std::cout << std::max(firstNumber, secondNumber) << std::endl;
+    }
 }
 
 int CalculusStep::getStep1() {
@@ -117,8 +156,27 @@ void DisplayStep::setup() {
 }
 
 void DisplayStep::run() {
-    //implementation in flow class
-    //need access to previous steps
+    //empty override for virtual function
+}
+
+void DisplayStep::run(Step* step) {
+    // Display the content if it's a TextInputStep
+    TextInputStep* textInputStep = dynamic_cast<TextInputStep*>(step);
+    if (textInputStep) {
+        std::cout << "Displaying TextInputStep Content: " << textInputStep->getTextInput() << std::endl;
+    }
+
+    // Display the contents of the file if it's a TextFileStep
+    TextFileStep* textFileStep = dynamic_cast<TextFileStep*>(step);
+    if (textFileStep) {
+        std::cout << "Displaying TextFileStep Content from File: " << textFileStep->readFileContent() << std::endl;
+    }
+
+    // Display the contents of the CSV file if it's a CsvFileStep
+    CsvFileStep* csvFileStep = dynamic_cast<CsvFileStep*>(step);
+    if (csvFileStep) {
+        std::cout << "Displaying CsvFileStep Content from File: " << csvFileStep->readFileContent() << std::endl;
+    }
 }
 
 int DisplayStep::getStep() {
@@ -132,12 +190,30 @@ TextFileStep::TextFileStep() {
 void TextFileStep::setup() {
     std::cout << "Enter description: ";
     std::cin >> description;
+    std::cout << "Enter filename: ";
+    std::cin >> filename;
 }
 
 void TextFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
-    std::cout << "Enter filename: ";
-    std::cin >> filename;
+    std::cout << "Filename: " << this->filename << std::endl;
+}
+
+std::string TextFileStep::readFileContent() {
+    std::ifstream file(filename);
+    std::string content;
+    
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            content += line + "\n";
+        }
+        file.close();
+    } else {
+        content = "Unable to open file: " + filename;
+    }
+
+    return content;
 }
 
 std::string TextFileStep::getDescription() {
@@ -155,12 +231,13 @@ CsvFileStep::CsvFileStep() {
 void CsvFileStep::setup() {
     std::cout << "Enter description: ";
     std::cin >> description;
+    std::cout << "Enter filename: ";
+    std::cin >> filename;
 }
 
 void CsvFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
-    std::cout << "Enter filename: ";
-    std::cin >> filename;
+    std::cout << "Filename: " << this->filename << std::endl;
 }
 
 std::string CsvFileStep::getDescription() {
@@ -169,6 +246,23 @@ std::string CsvFileStep::getDescription() {
 
 std::string CsvFileStep::getFilename() {
     return this->filename;
+}
+
+std::string CsvFileStep::readFileContent() {
+    std::ifstream file(filename);
+    std::string content;
+    
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            content += line + "\n";
+        }
+        file.close();
+    } else {
+        content = "Unable to open file: " + filename;
+    }
+
+    return content;
 }
 
 OutputStep::OutputStep() {
@@ -190,8 +284,14 @@ void OutputStep::setup() {
 }
 
 void OutputStep::run() {
-    //implementation in flow class,
-    //need access to previous steps
+    //empty override for virtual function
+}
+
+void OutputStep::run(Step* step) {
+    std::cout << "Step: " << this->step << std::endl;
+    std::cout << "Filename: " << this->fileName << std::endl;
+    std::cout << "Text: " << this->text << std::endl;
+    std::cout << "Description: " << this->description << std::endl;
 }
 
 int OutputStep::getStep() {

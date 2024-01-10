@@ -61,7 +61,7 @@ void FlowManager::addFlow() {
                 break;
             }
             case 4: {
-                CalculusStep* step = new CalculusStep();
+                CalculusStep<int>* step = new CalculusStep<int>();
                 step->setup();
                 flow->addStep(step);
                 break;

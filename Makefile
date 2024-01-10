@@ -1,5 +1,5 @@
 CXX = g++
-CFLAGS = -std=c++11
+CFLAGS = -std=c++17
 SRC_DIR = src
 INCLUDE_DIR = headers
 OBJ_DIR = obj

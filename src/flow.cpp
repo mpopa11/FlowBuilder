@@ -42,23 +42,27 @@ void Flow::start() {
         if (skip == "y" && !isLastStep) {
             this->skipStep(i);
         } else {
-            // check if step is a calculus step
-            CalculusStep* calculusStep = dynamic_cast<CalculusStep*>(this->steps[i]);
-            if (calculusStep) {
-                int step1Index = calculusStep->getStep1();
-                int step2Index = calculusStep->getStep2();
+            // get StepData and check if structure is calculus step
 
-                // Check if indices are valid
-                if (step1Index >= 0 && step1Index < this->steps.size() &&
-                    step2Index >= 0 && step2Index < this->steps.size()) {
+            std::visit([&](auto&& data) {
+                using T = std::decay_t<decltype(data)>;
+                if constexpr (std::is_same_v<T, std::tuple<int, int, std::string>>) {
                     
+                    int step1Index = std::get<0>(data);
+                    int step2Index = std::get<1>(data);
+                    std::string operation = std::get<2>(data);
+
                     Step* step1 = this->steps[step1Index];
                     Step* step2 = this->steps[step2Index];
-                    calculusStep->run(step1, step2);
-                } else {
-                    std::cerr << "Invalid step indices for CalculusStep." << std::endl;
+
+                    CalculusStep<int>* calculusStep = dynamic_cast<CalculusStep<int>*>(this->steps[i]);
+                    if (calculusStep) {
+                        calculusStep->run(step1, step2);
+                    }
+                     
+
                 }
-            } 
+            }, this->steps[i]->getStepData());
 
             // check if display step
             DisplayStep* displayStep = dynamic_cast<DisplayStep*>(this->steps[i]);
@@ -69,9 +73,7 @@ void Flow::start() {
                 if (displayStepIndex >= 0 && displayStepIndex < this->steps.size()) {
                     Step* step = this->steps[displayStepIndex];
                     displayStep->run(step);
-                } else {
-                    std::cerr << "Invalid step index for DisplayStep." << std::endl;
-                }
+                } 
             }
 
             // check if output step
@@ -83,8 +85,6 @@ void Flow::start() {
                 if (outputStepIndex >= 0 && outputStepIndex < this->steps.size()) {
                     Step* step = this->steps[outputStepIndex];
                     outputStep->run(step);
-                } else {
-                    std::cerr << "Invalid step index for OutputStep." << std::endl;
                 }
             }
 

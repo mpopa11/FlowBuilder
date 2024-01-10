@@ -26,6 +26,10 @@ std::string TitleStep::getSubtitle() {
     return this->subtitle;
 }
 
+StepData TitleStep::getStepData() const {
+
+}
+
 TextStep::TextStep(){
 
 }
@@ -51,6 +55,10 @@ std::string TextStep::getCopy() {
     return this->copy;
 }
 
+StepData TextStep::getStepData() const {
+
+}
+
 TextInputStep::TextInputStep() {
 
 }
@@ -72,6 +80,10 @@ std::string TextInputStep::getDescription() {
 
 std::string TextInputStep::getTextInput() {
     return this->textInput;
+}
+
+StepData TextInputStep::getStepData() const {
+
 }
 
 NumberStep::NumberStep() {
@@ -96,56 +108,69 @@ float NumberStep::getNumber() {
     return this->number;
 }
 
-CalculusStep::CalculusStep() {
-
+StepData NumberStep::getStepData() const {
+    return this->number;
 }
 
-void CalculusStep::setup() {
-    std::cout << "Enter first step: ";
+template <typename T>
+CalculusStep<T>::CalculusStep() {}
+
+template <typename T>
+void CalculusStep<T>::setup() {
+    std::cout << "Enter first step index: ";
     std::cin >> step1;
 
-    std::cout << "Enter second step: ";
+    std::cout << "Enter second step index: ";
     std::cin >> step2;
 
     std::cout << "Enter operation: ";
     std::cin >> operation;
 }
 
-void CalculusStep::run() {
-    //empty override to virtual function
+template <typename T>
+void CalculusStep<T>::run() {
+    //empty override for virtual function
 }
 
-void CalculusStep::run(Step* step1, Step* step2) {
-    int firstNumber = dynamic_cast<NumberStep*>(step1)->getNumber();
-    int secondNumber = dynamic_cast<NumberStep*>(step2)->getNumber();
+template <typename T>
+void CalculusStep<T>::run(Step* step1, Step* step2) {
+        T firstNumber = dynamic_cast<NumberStep*>(step1)->getNumber();
+        T secondNumber = dynamic_cast<NumberStep*>(step2)->getNumber();
+        std::cout << performOperation(firstNumber, secondNumber, operation) << std::endl;
+}
 
-    if (this->operation == "+") {
-        std::cout << firstNumber + secondNumber << std::endl;
-    } else if (this->operation == "-") {
-        std::cout << firstNumber - secondNumber << std::endl;
-    } else if (this->operation == "*") {
-        std::cout << firstNumber * secondNumber << std::endl;
-    } else if (this->operation == "/") {
-        std::cout << firstNumber / secondNumber << std::endl;
-    } else if (this->operation == "min") {
-        std::cout << std::min(firstNumber, secondNumber) << std::endl;
-    } else if (this->operation == "max") {
-        std::cout << std::max(firstNumber, secondNumber) << std::endl;
+template <typename T>
+StepData CalculusStep<T>::getStepData() const {
+    return std::make_tuple(step1, step2, operation);
+}
+
+template <typename T>
+T CalculusStep<T>::performOperation(T operand1, T operand2, std::string operation) const {
+    if (operation == "+") {
+        return operand1 + operand2;
+    } else if (operation == "-") {
+        return operand1 - operand2;
+    } else if (operation == "*") {
+        return operand1 * operand2;
+    } else if (operation == "/") {
+        if (operand2 != 0) {
+            return operand1 / operand2;
+        } else {
+            throw std::invalid_argument("Division by zero.");
+        }
+    } else if (operation == "min") {
+        return std::min(operand1, operand2);
+    } else if (operation == "max") {
+        return std::max(operand1, operand2);
     }
+
+    // Handle unsupported operations or return a default value
+    throw std::invalid_argument("Unsupported operation: " + operation);
 }
 
-int CalculusStep::getStep1() {
-    return this->step1;
-}
-
-int CalculusStep::getStep2() {
-    return this->step2;
-}
-
-std::string CalculusStep::getOperation() {
-    return this->operation;
-}
-
+// Explicit instantiation of template class for required types
+template class CalculusStep<int>;
+template class CalculusStep<float>;
 DisplayStep::DisplayStep() {
 
 }
@@ -181,6 +206,10 @@ void DisplayStep::run(Step* step) {
 
 int DisplayStep::getStep() {
     return this->step;
+}
+
+StepData DisplayStep::getStepData() const {
+    return step;
 }
 
 TextFileStep::TextFileStep() {
@@ -224,6 +253,10 @@ std::string TextFileStep::getFilename() {
     return this->filename;
 }
 
+StepData TextFileStep::getStepData() const {
+
+}
+
 CsvFileStep::CsvFileStep() {
 
 }
@@ -263,6 +296,10 @@ std::string CsvFileStep::readFileContent() {
     }
 
     return content;
+}
+
+StepData CsvFileStep::getStepData() const {
+
 }
 
 OutputStep::OutputStep() {
@@ -310,6 +347,10 @@ std::string OutputStep::getDescription() {
     return this->description;
 }
 
+StepData OutputStep::getStepData() const {
+    return step;
+}
+
 EndStep::EndStep() {
 
 }
@@ -322,7 +363,6 @@ void EndStep::run() {
     //not implemented
 }
 
-
-
-
-
+StepData EndStep::getStepData() const {
+    
+}

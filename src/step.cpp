@@ -1,6 +1,5 @@
 #include "step.h"
 
-
 TitleStep::TitleStep() {
 
 }
@@ -27,7 +26,11 @@ std::string TitleStep::getSubtitle() {
 }
 
 StepData TitleStep::getStepData() const {
+    return "";
+}
 
+void TitleStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 TextStep::TextStep(){
@@ -56,7 +59,11 @@ std::string TextStep::getCopy() {
 }
 
 StepData TextStep::getStepData() const {
+    return "";
+}
 
+void TextStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 TextInputStep::TextInputStep() {
@@ -83,7 +90,12 @@ std::string TextInputStep::getTextInput() {
 }
 
 StepData TextInputStep::getStepData() const {
+    return std::make_tuple(description, textInput);
+}
 
+void TextInputStep::runStep(std::vector<StepData> stepData) {
+    std::cout << "Description: " << this->description << std::endl;
+    this->run();
 }
 
 NumberStep::NumberStep() {
@@ -109,7 +121,12 @@ float NumberStep::getNumber() {
 }
 
 StepData NumberStep::getStepData() const {
-    return this->number;
+    return this->number;  
+}
+
+
+void NumberStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 template <typename T>
@@ -171,6 +188,19 @@ T CalculusStep<T>::performOperation(T operand1, T operand2, std::string operatio
 // Explicit instantiation of template class for required types
 template class CalculusStep<int>;
 template class CalculusStep<float>;
+
+template <typename T>
+void CalculusStep<T>::runStep(std::vector<StepData> stepData) {
+    if (std::holds_alternative<T>(stepData[0]) && std::holds_alternative<T>(stepData[1])) {
+        T firstNumber = std::get<T>(stepData[0]);
+        T secondNumber = std::get<T>(stepData[1]);
+        std::cout << performOperation(firstNumber, secondNumber, operation) << std::endl;
+    } else {
+        // Handle the case where the variant types don't match your expectations.
+        std::cerr << "Invalid variant types for CalculusStep" << std::endl;
+    }
+}
+
 DisplayStep::DisplayStep() {
 
 }
@@ -210,6 +240,10 @@ int DisplayStep::getStep() {
 
 StepData DisplayStep::getStepData() const {
     return step;
+}
+
+void DisplayStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 TextFileStep::TextFileStep() {
@@ -254,7 +288,11 @@ std::string TextFileStep::getFilename() {
 }
 
 StepData TextFileStep::getStepData() const {
+    return "";
+}
 
+void TextFileStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 CsvFileStep::CsvFileStep() {
@@ -299,7 +337,11 @@ std::string CsvFileStep::readFileContent() {
 }
 
 StepData CsvFileStep::getStepData() const {
+    return "";
+}
 
+void CsvFileStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }
 
 OutputStep::OutputStep() {
@@ -351,6 +393,10 @@ StepData OutputStep::getStepData() const {
     return step;
 }
 
+void OutputStep::runStep(std::vector<StepData> stepData) {
+    this->run();
+}
+
 EndStep::EndStep() {
 
 }
@@ -364,5 +410,9 @@ void EndStep::run() {
 }
 
 StepData EndStep::getStepData() const {
-    
+    return "";
+}
+
+void EndStep::runStep(std::vector<StepData> stepData) {
+    this->run();
 }

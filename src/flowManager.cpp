@@ -1,5 +1,6 @@
 #include "flowManager.h"
 #include "step.h"
+#include <limits>
 
 Flow* FlowManager::getFlow(std::string flowName) {
     for (int i = 0; i < this->flows.size(); i++) {
@@ -61,7 +62,7 @@ void FlowManager::addFlow() {
                 break;
             }
             case 4: {
-                CalculusStep<int>* step = new CalculusStep<int>();
+                CalculusStep<float>* step = new CalculusStep<float>();
                 step->setup();
                 flow->addStep(step);
                 break;
@@ -178,7 +179,7 @@ void FlowManager::getTimestamp() {
 
 void FlowManager::flowMenu() {
     int option = -1;
-    while (option != 0) {
+    do {
         std::cout << "Flow Menu" << std::endl;
         std::cout << "1. Add flow" << std::endl;
         std::cout << "2. Run flow" << std::endl;
@@ -188,39 +189,51 @@ void FlowManager::flowMenu() {
         std::cout << "6. Print flows" << std::endl;
         std::cout << "0. Exit" << std::endl;
         std::cout << "Select an option: ";
-        std::cin >> option;
-        switch(option) {
-            case 1: {
-                this->addFlow();
-                break;
-            }
-            case 2: {
-                this->runFlow();
-                break;
-            }
-            case 3: {
-                this->checkData();
-                break;
-            }
-            case 4: {
-                this->deleteFlow();
-                break;
-            }
-            case 5: {
-                this->getTimestamp();
-                break;
-            }
-            case 6: {
-                this->printFlows();
-                break;
-            }
-            case 0: {
-                break;
-            }
-            default: {
-                std::cout << "Invalid option" << std::endl;
-                break;
+
+        // Check if the input is an integer
+        if (!(std::cin >> option)) {
+            // Handle the case where the input is not an integer
+            std::cout << "Invalid input. Please enter a valid integer." << std::endl;
+
+            // Clear the error flag and ignore the invalid input
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            option = -1;  // Set option to -1 to re-enter the loop
+        } else {
+            // Input is a valid integer
+            switch(option) {
+                case 1: {
+                    this->addFlow();
+                    break;
+                }
+                case 2: {
+                    this->runFlow();
+                    break;
+                }
+                case 3: {
+                    this->checkData();
+                    break;
+                }
+                case 4: {
+                    this->deleteFlow();
+                    break;
+                }
+                case 5: {
+                    this->getTimestamp();
+                    break;
+                }
+                case 6: {
+                    this->printFlows();
+                    break;
+                }
+                case 0: {
+                    break;
+                }
+                default: {
+                    std::cout << "Invalid option. Please enter a valid option." << std::endl;
+                    break;
+                }
             }
         }
-    }
+    } while (option != 0);
 }

@@ -6,15 +6,17 @@
 #include <fstream>
 #include <variant>
 #include <tuple>
+#include <vector>
 
 using StepData = std::variant<int, std::string, float, std::tuple<int, int, std::string>,
-                     std::tuple<int, std::string, std::string, std::string>>;
+                     std::tuple<int, std::string, std::string, std::string>, std::tuple<std::string, std::string>>;
 
 class Step {
     public:
         virtual void setup() = 0;
         virtual void run() = 0;
         virtual StepData getStepData() const = 0;
+        virtual void runStep(std::vector<StepData> stepData) = 0;
 };
 
 class TitleStep : public Step {
@@ -29,6 +31,7 @@ class TitleStep : public Step {
         std::string getTitle();
         std::string getSubtitle();
         StepData getStepData() const override;
+        void runStep(std::vector<StepData> stepData) override;
 };
 
 class TextStep : public Step {
@@ -43,6 +46,7 @@ class TextStep : public Step {
         std::string getTitle();
         std::string getCopy();
         StepData getStepData() const override;
+        void runStep(std::vector<StepData> stepData) override;
 };
 
 class TextInputStep : public Step {
@@ -56,6 +60,7 @@ class TextInputStep : public Step {
         std::string getDescription();
         std::string getTextInput();
         StepData getStepData() const override;
+        void runStep(std::vector<StepData> stepData) override;
 };
 
 class NumberStep : public Step {
@@ -70,7 +75,9 @@ public:
     std::string getDescription();
     float getNumber();
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
 };
+
 template <typename T>
 class CalculusStep : public Step {
 private:
@@ -83,12 +90,14 @@ public:
 
     void setup() override;
     void run() override;
-    void run(Step* step1, Step* step2);
+    void run(Step* step1, Step* step2); 
+    void runStep(std::vector<StepData> stepData) override;
     StepData getStepData() const override;
 
 private:
     T performOperation(T operand1, T operand2, std::string operation) const;
 };
+
 extern template class CalculusStep<int>;
 extern template class CalculusStep<float>;
 
@@ -103,6 +112,7 @@ public:
     DisplayStep();
     int getStep();
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
 };
 
 class TextFileStep : public Step {
@@ -118,6 +128,7 @@ public:
     std::string getFilename();
     std::string readFileContent();
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
 };
 
 class CsvFileStep : public Step {
@@ -132,6 +143,7 @@ public:
     std::string getFilename();
     std::string readFileContent();
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
 };
 
 class OutputStep : public Step {
@@ -151,6 +163,7 @@ public:
     std::string getText();
     std::string getDescription();
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
 };
 
 class EndStep : public Step {
@@ -158,6 +171,7 @@ public:
     void setup() override;
     void run() override;
     StepData getStepData() const override;
+    void runStep(std::vector<StepData> stepData) override;
     EndStep();
 };
 

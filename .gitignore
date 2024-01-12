@@ -1,0 +1,16 @@
+# Ignore object files and executables
+*.obj
+*.exe
+*.out
+
+# Ignore generated files
+bin/
+obj/
+
+# Ignore Visual Studio files
+.vscode/
+*.suo
+*.ntvs*
+*.nupkg
+*.pfx
+*.snk

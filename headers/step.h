@@ -88,6 +88,7 @@ class CalculusStep : public Step {
         int step2;
         std::string operation;
         void run() override;T performOperation(T operand1, T operand2, std::string operation) const;
+        void inputOperation();
 
     public:
         CalculusStep();
@@ -119,6 +120,7 @@ class TextFileStep : public Step {
         std::string content;
         void run() override;
         std::string readFileContent();
+        bool fileExists(std::string filename);
         
     public:
         void setup() override;
@@ -137,6 +139,7 @@ class CsvFileStep : public Step {
         std::string content;
         void run() override;
         std::string readFileContent();
+        bool fileExists(std::string filename);
 
     public:
         void setup() override;

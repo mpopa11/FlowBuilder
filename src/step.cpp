@@ -1,4 +1,7 @@
 #include "step.h"
+#include "errors.h"
+#include <limits>
+
 
 TitleStep::TitleStep() {
 
@@ -6,10 +9,12 @@ TitleStep::TitleStep() {
 
 void TitleStep::setup() {
     std::cout << "Enter title: ";
-    std::cin >> title;
+    std::cin.ignore();
+    std::getline(std::cin, title);
 
     std::cout << "Enter subtitle: ";
-    std::cin >> subtitle;
+    std::cin.ignore();
+    std::getline(std::cin, subtitle);
 }
 
 void TitleStep::run() {
@@ -39,10 +44,12 @@ TextStep::TextStep(){
 
 void TextStep::setup() {
     std::cout << "Enter title: ";
-    std::cin >> title;
+    std::cin.ignore();
+    std::getline(std::cin, title);
 
     std::cout << "Enter copy: ";
-    std::cin >> copy;
+    std::cin.ignore();
+    std::getline(std::cin, copy);
 }
 
 void TextStep::run() {
@@ -72,13 +79,15 @@ TextInputStep::TextInputStep() {
 
 void TextInputStep::setup() {
     std::cout << "Enter description: ";
-    std::cin >> description;
+    std::cin.ignore();
+    std::getline(std::cin, description);
 }
 
 void TextInputStep::run() {
     std::cout << "Description: " << this->description << std::endl;
     std::cout << "Enter text: ";
-    std::cin >> textInput;
+    std::cin.ignore();
+    std::getline(std::cin, textInput);
 }
 
 std::string TextInputStep::getDescription() {
@@ -103,12 +112,18 @@ NumberStep::NumberStep() {
 
 void NumberStep::setup() {
     std::cout << "Enter description: ";
-    std::cin >> description;
+    std::cin.ignore();
+    std::getline(std::cin, description);
 }
 
 void NumberStep::run() {
     std::cout << "Enter number: ";
-    std::cin >> number;
+    if (!(std::cin >> number)) {
+        // If input is not a valid float, throw an exception
+        std::cin.clear(); // Clear the error flag
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+        throw InvalidNumberInput();
+    }
 }
 
 std::string NumberStep::getDescription() {
@@ -129,18 +144,38 @@ void NumberStep::runStep(std::vector<StepData> stepData) {
 }
 
 template <typename T>
-CalculusStep<T>::CalculusStep() {}
+CalculusStep<T>::CalculusStep() {
+
+}
 
 template <typename T>
 void CalculusStep<T>::setup() {
     std::cout << "Enter first step index: ";
-    std::cin >> step1;
+    if (!(std::cin >> step1)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw InvalidStepFormat();
+    }
 
     std::cout << "Enter second step index: ";
-    std::cin >> step2;
+    if (!(std::cin >> step2)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw InvalidStepFormat();
+    }
+    
+    inputOperation();
+}
 
+template <typename T>
+void CalculusStep<T>::inputOperation() {
     std::cout << "Enter operation: ";
     std::cin >> operation;
+
+    if (!(operation == "+" || operation == "-" || operation == "*" || operation == "/" ||
+          operation == "min" || operation == "max")) {
+        throw InvalidOperation();
+    }
 }
 
 template <typename T>
@@ -199,7 +234,11 @@ DisplayStep::DisplayStep() {
 
 void DisplayStep::setup() {
     std::cout << "Enter step: ";
-    std::cin >> step;
+    if (!(std::cin >> step)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw InvalidStepFormat();
+    }
 }
 
 void DisplayStep::run() {
@@ -231,13 +270,22 @@ TextFileStep::TextFileStep() {
     filename = "files/";
 }
 
+bool TextFileStep::fileExists(std::string filename) {
+    std::ifstream file(filename);
+    return file.good();
+}
+
 void TextFileStep::setup() {
     std::cout << "Enter description: ";
-    std::cin >> description;
+    std::cin.ignore();
+    std::getline(std::cin, description);
     std::cout << "Enter filename: ";
     std::string fileLocation;
     std::cin >> fileLocation;
     filename.append(fileLocation);
+    if (!fileExists(filename)) {
+        throw FileNotFound();
+    }
 }
 
 void TextFileStep::run() {
@@ -283,14 +331,22 @@ CsvFileStep::CsvFileStep() {
     filename = "files/";
 }
 
+bool CsvFileStep::fileExists(std::string filename) {
+    std::ifstream file(filename);
+    return file.good();
+}
+
 void CsvFileStep::setup() {
     std::cout << "Enter description: ";
-    std::cin >> description;
-    std::cout << "Enter filename: ";
+    std::cin.ignore();
+    std::getline(std::cin, description);
     std::cout << "Enter filename: ";
     std::string fileLocation;
     std::cin >> fileLocation;
     filename.append(fileLocation);
+    if (!fileExists(filename)) {
+        throw FileNotFound();
+    }
 }
 
 void CsvFileStep::run() {
@@ -338,7 +394,11 @@ OutputStep::OutputStep() {
 
 void OutputStep::setup() {
     std::cout << "Enter step: ";
-    std::cin >> step;
+    if (!(std::cin >> step)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw InvalidStepFormat();
+    }
 
     std::string fileLocation;
     std::cout << "Enter filename: ";
@@ -346,10 +406,12 @@ void OutputStep::setup() {
     fileName.append(fileLocation);
 
     std::cout << "Enter text: ";
-    std::cin >> text;
+    std::cin.ignore();
+    std::getline(std::cin, text);
 
     std::cout << "Enter description: ";
-    std::cin >> description;
+    std::cin.ignore();
+    std::getline(std::cin, description);
 }
 
 void OutputStep::run() {

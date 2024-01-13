@@ -2,6 +2,7 @@
 #define FLOW_H
 
 #include "step.h"
+#include "errors.h"
 #include <vector>
 #include <chrono>
 #include <ctime>

@@ -52,6 +52,10 @@ void Flow::start() {
                     int step2Index = std::get<1>(data);
                     std::string operation = std::get<2>(data);
 
+                    if (step1Index < i || step2Index < i) {
+                        throw StepInPast();
+                    }
+
                     Step* step1 = this->steps[step1Index];
                     Step* step2 = this->steps[step2Index];
                     
@@ -76,8 +80,12 @@ void Flow::start() {
                     stepsData.push_back(StepData);
                 }
             }, this->steps[i]->getStepData());
-               
-            this->steps[i]->runStep(stepsData);
+            try {
+                this->steps[i]->runStep(stepsData);
+            } catch (std::exception& e) {
+                std::cout << e.what() << std::endl;
+                this->errorScreenCount[i]++;
+            }
             if(stepsData.size() > 0) {
                 stepsData.clear();
             }
@@ -124,11 +132,11 @@ int Flow::getStepCount() {
     return this->stepCount;
 }
 
-std::vector<int> Flow::getSkippedScreenCount() {
+std::vector<int>& Flow::getSkippedScreenCount() {
     return this->skippedScreenCount;
 }
 
-std::vector<int> Flow::getErrorScreenCount() {
+std::vector<int>& Flow::getErrorScreenCount() {
     return this->errorScreenCount;
 }
 

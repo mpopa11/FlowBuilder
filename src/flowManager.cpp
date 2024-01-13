@@ -256,7 +256,6 @@ void FlowManager::addFlow() {
                     }
                     case 9: {
                         EndStep* step = new EndStep();
-                        retry = false; // Set retry to false to exit the loop
                         step->setup();
                         flow->addStep(step);
                         break;
@@ -270,6 +269,8 @@ void FlowManager::addFlow() {
                 if (stepType == 9) {
                     std::cout << "EndStep added. Exiting step selection." << std::endl;
                     retry = false; // Set retry to false to exit the loop
+                    flow->getSkippedScreenCount().resize(flow->getStepCount());
+                    flow->getErrorScreenCount().resize(flow->getStepCount());
                     break;  // Exit the loop immediately
                 }
             }

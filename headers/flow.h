@@ -32,8 +32,8 @@ class Flow {
         int getTimesStarted();
         int getTimesFinished();
         int getStepCount();
-        std::vector<int> getSkippedScreenCount();
-        std::vector<int> getErrorScreenCount();
+        std::vector<int>& getSkippedScreenCount();
+        std::vector<int>& getErrorScreenCount();
         float getAverageErrors();
 };
 

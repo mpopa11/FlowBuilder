@@ -76,33 +76,7 @@ void Flow::start() {
                     stepsData.push_back(StepData);
                 }
             }, this->steps[i]->getStepData());
-
-            // // check if display step
-            // DisplayStep* displayStep = dynamic_cast<DisplayStep*>(this->steps[i]);
-            // if (displayStep) {
-            //     int displayStepIndex = displayStep->getStep();
-
-            //     // Check if index is valid
-            //     if (displayStepIndex >= 0 && displayStepIndex < this->steps.size()) {
-            //         Step* step = this->steps[displayStepIndex];
-            //         displayStep->run(step);
-            //     } 
-            // }
-
-            // // check if output step
-            // OutputStep* outputStep = dynamic_cast<OutputStep*>(this->steps[i]);
-            // if (outputStep) {
-            //     int outputStepIndex = outputStep->getStep();
-
-            //     // Check if index is valid
-            //     if (outputStepIndex >= 0 && outputStepIndex < this->steps.size()) {
-            //         Step* step = this->steps[outputStepIndex];
-            //         outputStep->run(step);
-            //     }
-            // }
-
-            // run the step
-            //this->steps[i]->run();                     
+               
             this->steps[i]->runStep(stepsData);
             if(stepsData.size() > 0) {
                 stepsData.clear();

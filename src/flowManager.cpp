@@ -201,6 +201,7 @@ void FlowManager::flowMenu() {
             option = -1;  // Set option to -1 to re-enter the loop
         } else {
             // Input is a valid integer
+            
             switch(option) {
                 case 1: {
                     this->addFlow();

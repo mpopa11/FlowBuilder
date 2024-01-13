@@ -94,7 +94,6 @@ StepData TextInputStep::getStepData() const {
 }
 
 void TextInputStep::runStep(std::vector<StepData> stepData) {
-    std::cout << "Description: " << this->description << std::endl;
     this->run();
 }
 
@@ -147,13 +146,6 @@ void CalculusStep<T>::setup() {
 template <typename T>
 void CalculusStep<T>::run() {
     //empty override for virtual function
-}
-
-template <typename T>
-void CalculusStep<T>::run(Step* step1, Step* step2) {
-        T firstNumber = dynamic_cast<NumberStep*>(step1)->getNumber();
-        T secondNumber = dynamic_cast<NumberStep*>(step2)->getNumber();
-        std::cout << performOperation(firstNumber, secondNumber, operation) << std::endl;
 }
 
 template <typename T>
@@ -214,26 +206,6 @@ void DisplayStep::run() {
     //empty override for virtual function
 }
 
-void DisplayStep::run(Step* step) {
-    // Display the content if it's a TextInputStep
-    TextInputStep* textInputStep = dynamic_cast<TextInputStep*>(step);
-    if (textInputStep) {
-        std::cout << "Displaying TextInputStep Content: " << textInputStep->getTextInput() << std::endl;
-    }
-
-    // Display the contents of the file if it's a TextFileStep
-    TextFileStep* textFileStep = dynamic_cast<TextFileStep*>(step);
-    if (textFileStep) {
-        std::cout << "Displaying TextFileStep Content from File: " << textFileStep->readFileContent() << std::endl;
-    }
-
-    // Display the contents of the CSV file if it's a CsvFileStep
-    CsvFileStep* csvFileStep = dynamic_cast<CsvFileStep*>(step);
-    if (csvFileStep) {
-        std::cout << "Displaying CsvFileStep Content from File: " << csvFileStep->readFileContent() << std::endl;
-    }
-}
-
 int DisplayStep::getStep() {
     return this->step;
 }
@@ -243,23 +215,35 @@ StepData DisplayStep::getStepData() const {
 }
 
 void DisplayStep::runStep(std::vector<StepData> stepData) {
-    this->run();
+    // Display the content if it's a TextInputStep
+    if (std::holds_alternative<std::tuple<std::string, std::string>>(stepData[0])) {
+        std::tuple<std::string, std::string> data = std::get<std::tuple<std::string, std::string>>(stepData[0]);
+        std::cout << "Displaying TextInputStep Content: " << std::get<1>(data) << std::endl;
+    }
+    // Display content for file inputs
+    else if (std::holds_alternative<std::tuple<std::string, std::string, std::string>>(stepData[0])) {
+        std::tuple<std::string, std::string, std::string> data = std::get<std::tuple<std::string, std::string, std::string>>(stepData[0]);
+        std::cout << "Displaying Text/CSV File  Content: " << std::get<2>(data) << std::endl;
+    }
 }
 
 TextFileStep::TextFileStep() {
-
+    filename = "files/";
 }
 
 void TextFileStep::setup() {
     std::cout << "Enter description: ";
     std::cin >> description;
     std::cout << "Enter filename: ";
-    std::cin >> filename;
+    std::string fileLocation;
+    std::cin >> fileLocation;
+    filename.append(fileLocation);
 }
 
 void TextFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
     std::cout << "Filename: " << this->filename << std::endl;
+    content = readFileContent();
 }
 
 std::string TextFileStep::readFileContent() {
@@ -288,7 +272,7 @@ std::string TextFileStep::getFilename() {
 }
 
 StepData TextFileStep::getStepData() const {
-    return "";
+    return std::make_tuple(description, filename, content);
 }
 
 void TextFileStep::runStep(std::vector<StepData> stepData) {
@@ -296,19 +280,23 @@ void TextFileStep::runStep(std::vector<StepData> stepData) {
 }
 
 CsvFileStep::CsvFileStep() {
-
+    filename = "files/";
 }
 
 void CsvFileStep::setup() {
     std::cout << "Enter description: ";
     std::cin >> description;
     std::cout << "Enter filename: ";
-    std::cin >> filename;
+    std::cout << "Enter filename: ";
+    std::string fileLocation;
+    std::cin >> fileLocation;
+    filename.append(fileLocation);
 }
 
 void CsvFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
     std::cout << "Filename: " << this->filename << std::endl;
+    content = this->readFileContent();
 }
 
 std::string CsvFileStep::getDescription() {
@@ -337,7 +325,7 @@ std::string CsvFileStep::readFileContent() {
 }
 
 StepData CsvFileStep::getStepData() const {
-    return "";
+    return std::make_tuple(description, filename, content);
 }
 
 void CsvFileStep::runStep(std::vector<StepData> stepData) {
@@ -345,15 +333,17 @@ void CsvFileStep::runStep(std::vector<StepData> stepData) {
 }
 
 OutputStep::OutputStep() {
-
+    fileName = "files/";
 }
 
 void OutputStep::setup() {
     std::cout << "Enter step: ";
     std::cin >> step;
 
+    std::string fileLocation;
     std::cout << "Enter filename: ";
-    std::cin >> fileName;
+    std::cin >> fileLocation;
+    fileName.append(fileLocation);
 
     std::cout << "Enter text: ";
     std::cin >> text;
@@ -364,13 +354,6 @@ void OutputStep::setup() {
 
 void OutputStep::run() {
     //empty override for virtual function
-}
-
-void OutputStep::run(Step* step) {
-    std::cout << "Step: " << this->step << std::endl;
-    std::cout << "Filename: " << this->fileName << std::endl;
-    std::cout << "Text: " << this->text << std::endl;
-    std::cout << "Description: " << this->description << std::endl;
 }
 
 int OutputStep::getStep() {

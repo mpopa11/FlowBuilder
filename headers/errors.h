@@ -38,4 +38,19 @@ class FileNotFound : public std::exception {
         const char* what() const noexcept override;
     };
 
+class FlowNameTaken : public std::exception {
+    public:
+        const char* what() const noexcept override;
+    };
+
+class NotNumberType : public std::exception {
+    public:
+        const char* what() const noexcept override;
+    };
+
+class DivideByZero : public std::exception {
+    public:
+        const char* what() const noexcept override;
+    };
+
 #endif

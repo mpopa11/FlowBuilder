@@ -26,72 +26,154 @@ void Flow::addStep(Step* step) {
 void Flow::start() {
     this->timesStarted++;
     std::vector<StepData> stepsData;
+    bool retryCurrentStep = false;
+    std::string skip;
+    bool validInput = false;
+
     for (int i = 0; i < this->steps.size(); i++) {
-        // Check if it's the last step (EndStep)
-        bool isLastStep = (i == this->steps.size() - 1);
+       
+            // Check if it's the last step (EndStep)
+            bool isLastStep = (i == this->steps.size() - 1);
 
-        if (isLastStep) {
-            std::cout << "This is the EndStep" << std::endl;
-            timesFinished++;
-            return;
-        } else {
-            std::cout << "Do you want to skip this step? (y/n)" << std::endl;
-        }
+            if (isLastStep) {
+                std::cout << "This is the EndStep" << std::endl;
+                timesFinished++;
+                return;
+            } else {
+                if (!retryCurrentStep) {
+                    validInput = false;
+                    while (!validInput) {
+                        std::cout << "Do you want to skip this step? (y/n)" << std::endl;
+                        std::cin >> skip;
 
-        std::string skip;
-        std::cin >> skip;
-
-        if (skip == "y" && !isLastStep) {
-            this->skipStep(i);
-        } else {
-            std::visit([&](auto&& data) {
-                using T = std::decay_t<decltype(data)>;
-                if constexpr (std::is_same_v<T, std::tuple<int, int, std::string>>) {
-                    //Calculus step logic
-                    int step1Index = std::get<0>(data);
-                    int step2Index = std::get<1>(data);
-                    std::string operation = std::get<2>(data);
-
-                    if (step1Index < i || step2Index < i) {
-                        throw StepInPast();
+                        if (skip == "y" || skip == "n") {
+                            validInput = true;
+                        } else {
+                            std::cout << "Invalid input. Please enter 'y' or 'n'." << std::endl;
+                        }
                     }
-
-                    Step* step1 = this->steps[step1Index];
-                    Step* step2 = this->steps[step2Index];
-                    
-                    //get stepdata for step1 and step 2
-                    StepData step1Data = step1->getStepData();
-                    StepData step2Data = step2->getStepData();
-
-                    //add stepdata to vector
-                    stepsData.push_back(step1Data);
-                    stepsData.push_back(step2Data);
-
-                } else if constexpr (std::is_same_v<T, int>) {
-                    //Display & Output step logic
-
-                    int stepIndex = data;
-                    Step* step = this->steps[stepIndex];
-
-                    //get stepdata for step
-                    StepData StepData = step->getStepData();
-
-                    //add stepdata to vector
-                    stepsData.push_back(StepData);
                 }
-            }, this->steps[i]->getStepData());
-            try {
-                this->steps[i]->runStep(stepsData);
-            } catch (std::exception& e) {
-                std::cout << e.what() << std::endl;
-                this->errorScreenCount[i]++;
             }
-            if(stepsData.size() > 0) {
-                stepsData.clear();
+
+            if (skip == "y" && !isLastStep) {
+                this->skipStep(i);
+            } else {
+                bool setupComplete = false;
+
+                while (!setupComplete) {
+                    //setupComplete = false;
+                    try {
+                        std::visit([&](auto&& data) {
+                            using T = std::decay_t<decltype(data)>;
+                            if constexpr (std::is_same_v<T, std::tuple<int, int, std::string>>) {
+                                //Calculus step logic
+                                int step1Index = std::get<0>(data);
+                                int step2Index = std::get<1>(data);
+                                std::string operation = std::get<2>(data);
+
+                                if (step1Index > i || step2Index > i) {
+                                    throw StepInPast();
+                                }
+
+                                Step* step1 = this->steps[step1Index];
+                                Step* step2 = this->steps[step2Index];
+
+                                //get stepdata for step1 and step 2
+                                StepData step1Data = step1->getStepData();
+                                StepData step2Data = step2->getStepData();
+
+                               if (!std::holds_alternative<float>(step1Data) || !std::holds_alternative<float>(step2Data)) {
+                                    throw NotNumberType();
+                                }
+
+                                float step1Value = std::get<float>(step1Data);
+                                float step2Value = std::get<float>(step2Data);
+
+                                // add stepdata to vector
+                                stepsData.push_back(step1Data);
+                                stepsData.push_back(step2Data);
+                            } else if constexpr (std::is_same_v<T, int>) {
+                                //Display
+
+                                int stepIndex = data;
+
+                                if (stepIndex > i) {
+                                    throw StepInPast();
+                                }
+
+                                Step* step = this->steps[stepIndex];
+
+                                //get stepdata for step
+                                StepData stepData = step->getStepData();
+
+                                if (!std::holds_alternative<std::tuple<std::string, std::string>>(stepData) &&
+                                    !std::holds_alternative<std::tuple<std::string, std::string, std::string>>(stepData)) {
+                                    throw InvalidStepFormat();
+                                }
+
+                                //add stepdata to vector
+                                stepsData.push_back(stepData);
+                            } else if constexpr (std::is_same_v<T, std::tuple<int, std::string>>) {
+                                //output step logic
+
+                                int stepIndex = std::get<0>(data);
+
+                                if (stepIndex > i) {
+                                    throw StepInPast();
+                                }
+
+                                Step* step = this->steps[stepIndex];
+
+                                //get stepdata for step
+                                StepData stepData = step->getOutput();
+
+                                //add stepdata to vector
+                                stepsData.push_back(stepData);
+                            }
+                        }, this->steps[i]->getStepData());
+
+                        setupComplete = true; // Setup completed without errors
+                    } catch (std::exception& e) {
+                        std::cout << e.what() << std::endl;
+                        std::cout << "Repair the Step and try again." << std::endl;
+                        this->steps[i]->setup();
+                    }
+                }
+
+                // run step, if error at runtime, ask user if they want to skip or retry
+                try {
+                    this->steps[i]->runStep(stepsData);
+                } catch (std::exception& e) {
+                    std::cout << e.what() << std::endl;
+                    this->errorScreenCount[i]++;
+
+                     validInput = false;
+
+                    while (!validInput) {
+                    std::cout << "Do you want to skip this step? (y/n)" << std::endl;
+                    std::cin >> skip;
+
+                    if (skip == "y" || skip == "n") {
+                        validInput = true;
+                    } else {
+                        std::cout << "Invalid input. Please enter 'y' or 'n'." << std::endl;
+                    }
+                }
+                    if (skip == "y") {
+                        this->skipStep(i);
+                        retryCurrentStep = false;
+                    } else {
+                       i--;
+                       retryCurrentStep = true;
+                    }
+                }
+
+                if (stepsData.size() > 0) {
+                    stepsData.clear();
+                }
             }
         }
     }
-}
 
 void Flow::checkData() {
     std::cout << "Flow: " << this->name << std::endl;
@@ -164,3 +246,8 @@ void Flow::printSteps() {
     std::cout << "Select which step to add: " << std::endl;
 }
 
+Flow::~Flow() {
+    for (Step* step : steps) {
+        delete step;
+    }
+}

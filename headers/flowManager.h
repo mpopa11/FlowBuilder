@@ -14,6 +14,7 @@ private:
     void checkData(std::string flowName);
     void deleteFlow(std::string flowName);
     void getTimestamp(std::string flowName);
+    
 
 public:
     FlowManager();
@@ -24,6 +25,7 @@ public:
     void deleteFlow();
     void getTimestamp();
     void printFlows();
+    ~FlowManager();
 };
 
 #endif

@@ -2,7 +2,6 @@
 #include "errors.h"
 #include <limits>
 
-
 TitleStep::TitleStep() {
 
 }
@@ -20,6 +19,8 @@ void TitleStep::setup() {
 void TitleStep::run() {
     std::cout << "Title is: " << this->title << std::endl;
     std::cout << "Subtitle is: " << this->subtitle << std::endl;
+
+    this->output = "Title: " + this->title + "\nSubtitle: " + this->subtitle;
 }
 
 std::string TitleStep::getTitle() {
@@ -55,6 +56,8 @@ void TextStep::setup() {
 void TextStep::run() {
     std::cout << "Title is: " << this->title << std::endl;
     std::cout << "Copy is: " << this->copy << std::endl;
+
+    this->output = "Title: " + this->title + "\nCopy: " + this->copy;
 }
 
 std::string TextStep::getTitle() {
@@ -88,6 +91,8 @@ void TextInputStep::run() {
     std::cout << "Enter text: ";
     std::cin.ignore();
     std::getline(std::cin, textInput);
+
+    this->output = "Description: " + this->description + "\nText: " + this->textInput;
 }
 
 std::string TextInputStep::getDescription() {
@@ -122,8 +127,12 @@ void NumberStep::run() {
         // If input is not a valid float, throw an exception
         std::cin.clear(); // Clear the error flag
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+
+        this->output = InvalidNumberInput().what();
         throw InvalidNumberInput();
     }
+
+    this->output = "Description: " + this->description + "\nNumber: " + std::to_string(this->number);
 }
 
 std::string NumberStep::getDescription() {
@@ -174,6 +183,7 @@ void CalculusStep<T>::inputOperation() {
 
     if (!(operation == "+" || operation == "-" || operation == "*" || operation == "/" ||
           operation == "min" || operation == "max")) {
+        
         throw InvalidOperation();
     }
 }
@@ -222,9 +232,11 @@ void CalculusStep<T>::runStep(std::vector<StepData> stepData) {
         T firstNumber = std::get<T>(stepData[0]);
         T secondNumber = std::get<T>(stepData[1]);
         std::cout << performOperation(firstNumber, secondNumber, operation) << std::endl;
+
+        this->output = "First number: " + std::to_string(firstNumber) + "\nSecond number: " + std::to_string(secondNumber) + "\nOperation: " + operation;
     } else {
         // Handle the case where the variant types don't match your expectations.
-        std::cerr << "Invalid variant types for CalculusStep" << std::endl;
+        throw std::invalid_argument("Invalid step data type. Not a Number Type.");
     }
 }
 
@@ -258,11 +270,13 @@ void DisplayStep::runStep(std::vector<StepData> stepData) {
     if (std::holds_alternative<std::tuple<std::string, std::string>>(stepData[0])) {
         std::tuple<std::string, std::string> data = std::get<std::tuple<std::string, std::string>>(stepData[0]);
         std::cout << "Displaying TextInputStep Content: " << std::get<1>(data) << std::endl;
+        this->output = "Step:" + std::to_string(step)  + "\nDisplaying TextInputStep Content: " + std::get<1>(data);
     }
     // Display content for file inputs
     else if (std::holds_alternative<std::tuple<std::string, std::string, std::string>>(stepData[0])) {
         std::tuple<std::string, std::string, std::string> data = std::get<std::tuple<std::string, std::string, std::string>>(stepData[0]);
         std::cout << "Displaying Text/CSV File  Content: " << std::get<2>(data) << std::endl;
+        this->output = "Step:" + std::to_string(step)  + "\nDisplaying Text/CSV File  Content: " + std::get<2>(data);
     }
 }
 
@@ -292,6 +306,8 @@ void TextFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
     std::cout << "Filename: " << this->filename << std::endl;
     content = readFileContent();
+
+    this->output = "Description: " + this->description + "\nFilename: " + this->filename + "\nContent: " + content;
 }
 
 std::string TextFileStep::readFileContent() {
@@ -353,6 +369,8 @@ void CsvFileStep::run() {
     std::cout << "Description: " << this->description << std::endl;
     std::cout << "Filename: " << this->filename << std::endl;
     content = this->readFileContent();
+
+    this->output = "Description: " + this->description + "\nFilename: " + this->filename + "\nContent: " + content;
 }
 
 std::string CsvFileStep::getDescription() {
@@ -435,11 +453,21 @@ std::string OutputStep::getDescription() {
 }
 
 StepData OutputStep::getStepData() const {
-    return step;
+    return std::make_tuple(step, fileName);
 }
 
 void OutputStep::runStep(std::vector<StepData> stepData) {
-    this->run();
+    //open file
+    std::ofstream file(fileName);
+    std::cout << "Writing to file: " << fileName << std::endl;
+
+    file << "Text: " <<  text << std::endl;
+    file << "Description: " << description << std::endl;
+    file << "Step: " << step << std::endl;
+    std::string outputStep = std::get<std::string>(stepData[0]);
+    file << "Output: " << outputStep << std::endl;
+
+    file.close();
 }
 
 EndStep::EndStep() {

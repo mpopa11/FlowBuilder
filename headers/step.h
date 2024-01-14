@@ -9,13 +9,19 @@
 #include <vector>
 
 using StepData = std::variant<int, std::string, float, std::tuple<int, int, std::string>,
-                     std::tuple<std::string, std::string, std::string>, std::tuple<std::string, std::string>>;
+                     std::tuple<std::string, std::string, std::string>, std::tuple<std::string, std::string>, 
+                     std::tuple<int, std::string>>;
 
 class Step {
+    protected:
+        std::string output;
     public:
         virtual void setup() = 0;
         virtual StepData getStepData() const = 0;
         virtual void runStep(std::vector<StepData> stepData) = 0;
+        std::string getOutput() {
+            return this->output;
+        };
 
     private:
         virtual void run() = 0;

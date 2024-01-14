@@ -27,3 +27,11 @@ const char* InvalidOperation::what() const noexcept {
 const char* FileNotFound::what() const noexcept {
     return "File not found. Please enter a valid file name.";
 }
+
+const char* FlowNameTaken::what() const noexcept {
+    return "Flow name taken. Please enter a different flow name.";
+}
+
+const char* NotNumberType::what() const noexcept {
+    return "Not a number type.";
+}

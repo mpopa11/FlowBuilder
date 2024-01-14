@@ -22,6 +22,7 @@ class Flow {
         float averageErrors;
         void skipStep(int stepIndex);
         void printSteps();
+        
     public:
         Flow(std::string name);
         void addStep(Step* step);
@@ -35,6 +36,8 @@ class Flow {
         std::vector<int>& getSkippedScreenCount();
         std::vector<int>& getErrorScreenCount();
         float getAverageErrors();
+        ~Flow();
+
 };
 
 #endif

@@ -175,10 +175,23 @@ void FlowManager::flowMenu() {
 void FlowManager::addFlow() {
     std::string flowName;
     bool retry = false;
+    bool retryName = false;
+    do {
+        try {
+            retryName = false;
+            std::cout << "Enter flow name: ";
+            std::cin.ignore();
+            std::getline(std::cin, flowName);
+            if (this->getFlow(flowName) != NULL) {
+                throw FlowNameTaken();
+            }
+        } catch (const std::exception &e) {
+            retryName = true;
+            std::cerr << "Error: " << e.what() << std::endl;
+            std::cout << "Please try again." << std::endl;
+        }
+    } while (retryName);
 
-    std::cout << "Enter flow name: ";
-    std::cin.ignore();
-    std::getline(std::cin, flowName);
     Flow* flow = new Flow(flowName);
     this->flows.push_back(flow);
 
@@ -280,4 +293,10 @@ void FlowManager::addFlow() {
             std::cout << "Please try again." << std::endl;
         }
     } while (retry);
+}
+
+FlowManager::~FlowManager() {
+    for (Flow* flow : flows) {
+        delete flow;
+    }
 }

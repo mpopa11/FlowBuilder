@@ -3,6 +3,9 @@
 *.exe
 *.out
 
+# Ignore contents of files folder
+files/*
+
 # Ignore generated files
 bin/
 obj/

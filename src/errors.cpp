@@ -35,3 +35,7 @@ const char* FlowNameTaken::what() const noexcept {
 const char* NotNumberType::what() const noexcept {
     return "Not a number type.";
 }
+
+const char* DivideByZero::what() const noexcept {
+    return "Division by zero impossible.";
+}

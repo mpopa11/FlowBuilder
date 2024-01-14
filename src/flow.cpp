@@ -1,5 +1,13 @@
 #include "flow.h"
 
+void Flow::updateAverageErrors() {
+    float totalErrors = 0;
+    for (int i = 0; i < this->errorScreenCount.size(); i++) {
+        totalErrors += this->errorScreenCount[i];
+    }
+    this->averageErrors = totalErrors / this->errorScreenCount.size();
+}
+
 Flow::Flow(std::string name) {
     this->name = name;
     this->timesStarted = 0;
@@ -7,7 +15,7 @@ Flow::Flow(std::string name) {
     this->stepCount = 0;
     this->averageErrors = 0;
     
-     std::chrono::system_clock::time_point creationTimestamp;
+    std::chrono::system_clock::time_point creationTimestamp;
     creationTimestamp = std::chrono::system_clock::now();
     // Convert time_point to time_t
     std::time_t time = std::chrono::system_clock::to_time_t(creationTimestamp);
@@ -38,6 +46,7 @@ void Flow::start() {
             if (isLastStep) {
                 std::cout << "This is the EndStep" << std::endl;
                 timesFinished++;
+                this->updateAverageErrors();
                 return;
             } else {
                 if (!retryCurrentStep) {
@@ -81,6 +90,18 @@ void Flow::start() {
                                 //get stepdata for step1 and step 2
                                 StepData step1Data = step1->getStepData();
                                 StepData step2Data = step2->getStepData();
+
+                                try {
+                                    //step2Data is zero and the operation is /
+                                    if (std::holds_alternative<float>(step2Data) && std::get<float>(step2Data) == 0 && operation == "/") {
+                                        throw DivideByZero();
+                                    }
+                                } catch (DivideByZero& e) {
+                                    std::cout << e.what() << std::endl;
+                                    std::cout << "Repair the Step and try again." << std::endl;
+                                    step2->runStep(stepsData);
+                                }
+                                
 
                                if (!std::holds_alternative<float>(step1Data) || !std::holds_alternative<float>(step2Data)) {
                                     throw NotNumberType();

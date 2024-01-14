@@ -22,6 +22,7 @@ class Flow {
         float averageErrors;
         void skipStep(int stepIndex);
         void printSteps();
+        void updateAverageErrors();
         
     public:
         Flow(std::string name);
